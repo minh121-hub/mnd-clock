@@ -1,0 +1,7 @@
+node_modules/
+app/android/
+app/ios/
+shots/
+src/sim/part*.json
+src/logic.js
+tests/shots/

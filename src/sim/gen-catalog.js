@@ -1,0 +1,11 @@
+const fs=require('fs');const M=require(__dirname+'/merged.json');const {ACH}=require('../dex-core.js');const N=M.N;
+const tierOf=c=>{const p=c/N;return p>=0.05?1:p>=0.005?2:p>=0.0005?3:4;};
+const ev={1:[],2:[],3:[],4:[]};Object.entries(M.ev).sort((a,b)=>b[1]-a[1]).forEach(([h,c])=>ev[tierOf(c)].push(h));
+const ach={};for(const a of ACH)if(a.run)ach[a.id]=+((M.ach[a.id]||0)/N).toPrecision(2);
+const ends=Object.entries(M.end).sort((a,b)=>b[1]-a[1]).map(([k,c])=>[k,+(c/N).toPrecision(2)]);
+const order=['army','navy','air','marine'],RK=['이병','일병','상병','병장','하사','중사','상사','원사','준위','소위','중위','대위','소령','중령','대령','준장','소장','중장','대장'];
+const ranks=Object.keys(M.ranks).sort((a,b)=>{const [s1,r1]=a.split(':'),[s2,r2]=b.split(':');return order.indexOf(s1)-order.indexOf(s2)||RK.indexOf(r1)-RK.indexOf(r2);});
+const choices=Object.entries(M.choices).sort((a,b)=>a[0].localeCompare(b[0])).map(([k,c])=>[k,M.ctag[k]||'',+(c/N).toPrecision(2)]);
+const CAT={N,ev:Object.fromEntries(Object.entries(ev).map(([t,a])=>[t,a.join(',')])),ach,ends,ranks,choices};
+fs.writeFileSync(__dirname+'/../catalog.js','/* 무작위 플레이 '+N+'판 시뮬레이션으로 만든 도감 카탈로그 (gen-catalog.js가 생성) */\nconst DEX_CAT='+JSON.stringify(CAT)+';\n');
+console.log('catalog bytes',fs.statSync(__dirname+'/../catalog.js').size,Object.values(ev).map(a=>a.length));

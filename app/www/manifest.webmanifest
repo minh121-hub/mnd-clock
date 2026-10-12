@@ -1,0 +1,16 @@
+{
+  "name": "국방부 시계",
+  "short_name": "국방부 시계",
+  "description": "현역 45만 명 중 한 명으로 무작위 입대하는 비공식 군 복무 시뮬레이션",
+  "lang": "ko",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ECEEE8",
+  "theme_color": "#56632F",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

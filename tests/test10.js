@@ -1,0 +1,23 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:400,height:860},colorScheme:'dark'});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/app/www/index.html');await p.waitForTimeout(300);
+await p.click('#goBtn');await p.click('#spd button[data-s="4"]');await p.check('#autoTg');await p.waitForTimeout(3000);
+const lis=await p.$$('#log li.replayable');const target=lis[2];const txt=await target.innerText();
+const liveDate=await p.innerText('#sceneDate');
+await target.click();await p.waitForTimeout(400);
+const s1={paused:await p.evaluate(()=>paused),date:await p.innerText('#sceneDate'),info:await p.innerText('#rpInfo'),bar:await p.isVisible('#replayBar')};
+const n0=await p.$$eval('#log li',e=>e.length);await p.waitForTimeout(1200);const n0b=await p.$$eval('#log li',e=>e.length);
+await p.locator('.hud').screenshot({path:'shots/replay-phone.png'});
+await p.click('#rpNext');await p.waitForTimeout(200);const s2=await p.innerText('#rpInfo');
+await p.click('#rpBack');await p.waitForTimeout(1500);
+const s3={paused:await p.evaluate(()=>paused),bar:await p.isVisible('#replayBar'),grew:(await p.$$eval('#log li',e=>e.length))>n0b};
+console.log('clicked:',txt.split('\n').slice(0,2).join(' '),'| live',liveDate.replace('\n',' '));
+console.log('replay',JSON.stringify(s1),'frozen',n0===n0b,'| next ->',s2,'| back',JSON.stringify(s3));
+// 끝난 뒤
+await p.click('#skipBtn');await p.waitForTimeout(500);
+const l2=(await p.$$('#log li.replayable'))[5];await l2.click();await p.waitForTimeout(300);
+const sticky=await p.evaluate(()=>getComputedStyle(document.querySelector('.hud')).position);
+await p.click('#rpBack');await p.waitForTimeout(200);
+const sticky2=await p.evaluate(()=>getComputedStyle(document.querySelector('.hud')).position);
+console.log('after end: during replay hud',sticky,'| after back',sticky2,'| hint hidden',await p.isHidden('#rpHint'));
+console.log('errors',errs);await b.close();})();

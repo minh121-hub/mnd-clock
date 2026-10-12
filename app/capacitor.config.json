@@ -1,0 +1,7 @@
+{
+  "appId": "kr.example.mndclock",
+  "appName": "국방부 시계",
+  "webDir": "www",
+  "android": { "allowMixedContent": false },
+  "server": { "androidScheme": "https" }
+}
