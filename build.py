@@ -85,6 +85,10 @@ _p1 = page.index('</section>', page.index('  <section class="panel"')) + len('</
 page = page[:_p1] + "\n" + _hero + page[_p1:]
 # --- 자동 토글에 버튼 모양을 입히기 위한 클래스
 sub('''<label class="autotg" title="선택지를 무작위로 자동으로 고릅니다">''', '''<label class="autotg" title="선택지를 무작위로 자동으로 고릅니다" for="autoTg">''')
+# --- 진행 속도: 1배속 기준 사건 한 줄 1.5초 (원작 0.56초, 2026-10-12 민후 결정)
+sub("""  timer=setTimeout(step,T(560));""", """  timer=setTimeout(step,T(1500));""")
+sub("""  if(cont&&!paused)timer=setTimeout(step,T(380));""", """  if(cont&&!paused)timer=setTimeout(step,T(600));""")
+sub("""    if(autoOn){timer=setTimeout(()=>choose(it.dec,rndOpt(it.dec),li,true,true),T(650));return;}""", """    if(autoOn){timer=setTimeout(()=>choose(it.dec,rndOpt(it.dec),li,true,true),T(1000));return;}""")
 # --- 컷 오버레이
 sub("""  <footer>""", """  <div class="cut" id="cut" hidden role="dialog" aria-modal="true" aria-labelledby="cutTitle">
     <div class="cut-box">

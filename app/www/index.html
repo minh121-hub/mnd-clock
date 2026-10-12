@@ -3787,7 +3787,7 @@ function choose(dec,i,li,auto,cont){
   li.querySelectorAll('.opt').forEach((b,j)=>{b.disabled=true;if(j===i){b.classList.add('picked');b.setAttribute('aria-pressed','true');}});
   if(auto){const s=document.createElement('span');s.className='auto';s.textContent='자동 선택';li.querySelector('.opts').appendChild(s);}
   applyChoice(G,dec,dec.opts[i],Math.random);FX.onChoose(auto,dec,i,li);
-  if(cont&&!paused)timer=setTimeout(step,T(380));
+  if(cont&&!paused)timer=setTimeout(step,T(600));
 }
 function step(){
   timer=null;if(waiting||paused)return;
@@ -3796,12 +3796,12 @@ function step(){
   if(it.dec){
     const li=showDecision(it.dec);
     FX.follow(li,true);
-    if(autoOn){timer=setTimeout(()=>choose(it.dec,rndOpt(it.dec),li,true,true),T(650));return;}
+    if(autoOn){timer=setTimeout(()=>choose(it.dec,rndOpt(it.dec),li,true,true),T(1000));return;}
     const b=li.querySelector('.opt');if(b)b.focus({preventScroll:true});
     return;
   }
   addEvent(it.e);
-  timer=setTimeout(step,T(560));
+  timer=setTimeout(step,T(1500));
 }
 function finish(){
   clearTimeout(timer);timer=null;
