@@ -52,6 +52,7 @@ sub("""    <div class="hud">
           <button type="button" id="rpBack" class="rp-back">지금으로</button>
         </div>
       </div>
+      <button type="button" class="to-latest" id="toLatest" hidden>새 기록 ↓</button>
       <p class="rp-hint" id="rpHint">지나간 줄을 누르면 그 장면을 다시 볼 수 있어요</p>
 """)
 sub("""        <button class="cbtn" id="skipBtn\"""", """        <button class="cbtn" id="sndBtn" type="button" aria-pressed="false" title="효과음을 켜고 끕니다">소리</button>
@@ -149,6 +150,8 @@ sub("""renderOdds();renderChart();renderUnits();renderRoles();drawTicks(18,3,6);
     """renderOdds();renderChart();renderUnits();renderRoles();drawTicks(18,3,6);setProgress(0);startIdle();FX.init();""")
 
 sub("""$('#skipBtn').addEventListener('click',()=>{if(G)finish();});""", """$('#skipBtn').addEventListener('click',()=>{if(G){FX.onSkip();finish();}});""")
+# --- 선택지도 같은 규칙으로 따라간다 (위로 올려 읽는 중이면 끌어내리지 않음)
+sub("""    li.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});""", """    FX.follow(li,true);""")
 # --- fx.js는 본 스크립트 앞에 둔다
 sub("""<script>
 /*LOGIC-START*/""", "<script>\n" + fx_js + "\n</script>\n<script>\n/*LOGIC-START*/")

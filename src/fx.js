@@ -750,6 +750,9 @@ const FX=(()=>{
         rc.addEventListener('click',()=>{dex=blank();saveDex();store.set(OLD_KEY,'null');renderDex();rq.hidden=true;rb.hidden=false;});}
       Object.assign(CAT,buildCat());
       const log=document.getElementById('log');const self=this;
+      const tl=document.getElementById('toLatest');
+      if(tl){tl.addEventListener('click',()=>{const last=log.lastElementChild;if(last)last.scrollIntoView({block:'nearest',behavior:RM?'auto':'smooth'});tl.hidden=true;self.forceUntil=Date.now()+1500;});
+        addEventListener('scroll',()=>{if(tl.hidden)return;const last=log.lastElementChild;if(!last||last.getBoundingClientRect().top<innerHeight)tl.hidden=true;},{passive:true});}
       const pick=e=>{const li=e.target.closest('li[data-snap]');if(!li||e.target.closest('button'))return;self.replay(+li.dataset.snap);};
       log.addEventListener('click',pick);log.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(e);}});
       document.getElementById('rpBack').addEventListener('click',()=>self.exitReplay(false));
@@ -770,13 +773,23 @@ const FX=(()=>{
       const b=document.getElementById('banner');if(b)b.classList.remove('show');
       this.ui={auto:false,skip:false,manual:0,maxSpeed:typeof speed==='number'?speed:1,hour:0,matesSvc:0,sameRole:false};
       if(this.rp)this.exitReplay(true);
-      this.found=[];this.evSet=new Set(dex.ev);this.picks=[];this.snaps=[];
+      this.found=[];this.evSet=new Set(dex.ev);this.picks=[];this.snaps=[];this.forceUntil=Date.now()+2500;
       this.st=blankSt();this.st.prop=propOf(G);if(G.ctx.rk==='enl'&&G.gf==='dating')this.st.gf=1;this.st.rank=G.curRk||'';const S0=G.stats||{};this.st.fit=S0.fit|0;this.st.iq=S0.iq|0;this.st.mind=S0.mind==null?50:S0.mind;
       if(scene)scene.set({st:{...this.st}});
       const ra=document.getElementById('runAch');if(ra)ra.hidden=true;
       document.getElementById('result').classList.remove('done');
     },
     picks:[],st:null,snaps:[],rp:null,
+    /* 자동 스크롤: 바로 앞 줄이 화면에 보이면(=맨 아래를 보고 있으면) 새 줄을 따라간다.
+       위로 올려 지난 기록을 읽는 중이면 끌어내리지 않고 '새 기록' 버튼만 띄운다 */
+    forceUntil:0,
+    follow(li,isDec){
+      if(!li)return;const prev=li.previousElementSibling;
+      const atBottom=!prev||prev.getBoundingClientRect().top<innerHeight+120||Date.now()<this.forceUntil;
+      const btn=document.getElementById('toLatest');
+      if(atBottom){li.scrollIntoView({block:'nearest',behavior:RM||(typeof speed==='number'&&speed>=2)?'auto':'smooth'});if(btn)btn.hidden=true;}
+      else if(btn){btn.textContent=isDec?'선택지가 기다려요 ↓':'새 기록 ↓';btn.hidden=false;}
+    },
     /* 지난 장면 다시 보기: 로그 줄을 누르면 그 순간 장면으로, 진행은 멈춘다 */
     replay(i){
       const sn=this.snaps[i];if(!sn||!scene)return;
@@ -830,6 +843,7 @@ const FX=(()=>{
       if(this.evSet&&!this.evSet.has(h)){this.evSet.add(h);if(tr>=3){rare=true;this.found.push(tr);if(li){li.classList.add('find','t'+tr);const p=li.querySelector('p');if(p)p.insertAdjacentHTML('beforeend',`<span class="find-tag">${tr===5?'미기록':TIER_NAME[tr]} 발견</span>`);}}}
       const ct=cutFor(t);
       if(ct&&!this.quiet&&!dex.cuts.includes(ct.id)){dex.cuts.push(ct.id);saveDex();openCut(ct,t,svc,true);}
+      if(!this.quiet&&!this.rp)this.follow(li);
       if(this.quiet)return;
       if(rare&&!fx){SFX.ach();buzz([15,30,15]);banner(`<span><small>${tr===5?'미기록 사건':TIER_NAME[tr]+' 사건'} 발견</small>${esc(t.length>24?t.slice(0,23)+'…':t)}</span>`,'ach t'+tr,2000);return;}
       if(fx==='promo'){SFX.promo();buzz([20,40,20]);const m=t.match(/^(\S+?)(으로|로) 진급|^(\S+?)(으로|로) 임관/);const rk=m&&(m[1]||m[3]);
@@ -853,7 +867,7 @@ const FX=(()=>{
       const card=document.getElementById('result');if(!RM){card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');}
       const u=this.ui||{auto:true,skip:true,manual:0,maxSpeed:4};u.hour=new Date().getHours();u.matesSvc=new Set((G.mates||[]).map(m=>m.ctx.sv.id)).size;
       const {got,f,delta}=record(G,u);
-      card.classList.add('done');
+      card.classList.add('done');{const tl=document.getElementById('toLatest');if(tl)tl.hidden=true;}
       const ep=renderEpic(G,f,got);renderPicks(this.picks);
       const n3=this.found.filter(t=>t===3).length,n4=this.found.filter(t=>t===4).length,n5=this.found.filter(t=>t===5).length;
       const finds=[n4&&`전설 ${n4}`,n3&&`희귀 ${n3}`,n5&&`미기록 ${n5}`].filter(Boolean).join(' · ');
