@@ -51,9 +51,9 @@ sub("""    <div class="hud">
           <button type="button" id="rpNext" aria-label="다음 장면">▶</button>
           <button type="button" id="rpBack" class="rp-back">지금으로</button>
         </div>
+        <p class="rp-hint" id="rpHint">지나간 줄을 누르면 그 장면을 다시 볼 수 있어요</p>
       </div>
       <button type="button" class="to-latest" id="toLatest" hidden>새 기록 ↓</button>
-      <p class="rp-hint" id="rpHint">지나간 줄을 누르면 그 장면을 다시 볼 수 있어요</p>
 """)
 sub("""        <button class="cbtn" id="skipBtn\"""", """        <button class="cbtn" id="sndBtn" type="button" aria-pressed="false" title="효과음을 켜고 끕니다">소리</button>
         <button class="cbtn" id="skipBtn\"""")
@@ -71,6 +71,20 @@ sub("""  <section aria-labelledby="chartTitle">""", """  <section class="dex" ar
 
   <section aria-labelledby="chartTitle">""")
 
+# --- 첫 화면: 시작 버튼을 위로. 시계는 입대 패널 아래로 옮긴다
+_i = page.index('  <section class="clockbox"'); _j = page.index('  <section class="panel"')
+_clock = page[_i:_j]; page = page[:_i] + page[_j:]
+_k = page.index('  <section class="card" id="result"'); page = page[:_k] + _clock + page[_k:]
+# --- 확률 설명은 입대 버튼 아래로, 픽셀 장면도 입대 패널 아래로 (폰에서 시작 버튼이 첫 화면에 보이게)
+sub("""    <div class="odds" id="odds"></div>
+    <div class="row"><button class="btn" id="goBtn" type="button">입대하기</button></div>""", """    <div class="row"><button class="btn" id="goBtn" type="button">입대하기</button></div>
+    <div class="odds" id="odds"></div>""")
+_h0 = page.index('  <div class="hero-scene"'); _h1 = page.index('  <section class="panel"')
+_hero = page[_h0:_h1]; page = page[:_h0] + page[_h1:]
+_p1 = page.index('</section>', page.index('  <section class="panel"')) + len('</section>\n')
+page = page[:_p1] + "\n" + _hero + page[_p1:]
+# --- 자동 토글에 버튼 모양을 입히기 위한 클래스
+sub('''<label class="autotg" title="선택지를 무작위로 자동으로 고릅니다">''', '''<label class="autotg" title="선택지를 무작위로 자동으로 고릅니다" for="autoTg">''')
 # --- 컷 오버레이
 sub("""  <footer>""", """  <div class="cut" id="cut" hidden role="dialog" aria-modal="true" aria-labelledby="cutTitle">
     <div class="cut-box">

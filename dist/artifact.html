@@ -391,6 +391,39 @@ footer{font-size:12px;color:var(--muted);font-family:var(--f-mono)}
 .log li{scroll-margin-bottom:16px}
 .to-latest{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;font:inherit;font-size:13px;font-weight:600;padding:8px 16px;border:0;border-radius:999px;background:var(--ink);color:var(--paper);box-shadow:0 3px 10px rgba(0,0,0,.25);cursor:pointer}
 .to-latest:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* 폰 최적화 (2026-10-12) */
+.banner{visibility:hidden}.banner.show{visibility:visible}
+.scene .rp-hint{position:absolute;left:8px;bottom:5px;margin:0;padding:0;font-family:var(--f-mono);font-size:10px;line-height:1.2;color:var(--scene-ink);text-shadow:0 1px 0 var(--scene-shadow),0 0 4px var(--scene-shadow);pointer-events:none}
+.autotg{min-height:32px;padding:0 4px}
+@media (max-width:520px){
+  .wrap{gap:28px}
+  .statbar{gap:8px;padding:8px 12px 2px}
+  .statbar .dl{display:none}
+  .statbar .k{font-size:11px}
+  .statbar .k b{font-size:14px}
+  .ctl{flex-wrap:nowrap;gap:4px;padding:6px 12px 8px}
+  .spd button{min-width:30px;min-height:36px;padding:0 3px;font-size:11.5px}
+  .cbtn{min-height:36px;padding:0 9px;font-size:13px;white-space:nowrap}
+  .autotg{min-height:36px;gap:4px;font-size:13px;white-space:nowrap}
+  #skipBtn{margin-left:auto}
+  .log li{grid-template-columns:minmax(0,1fr);gap:2px;padding:9px 0}
+  .log time{padding-top:0;font-size:11px}
+  .log li.decision{margin:4px -10px;padding:12px 10px}
+  .opt{min-height:44px;padding:9px 14px}
+  .opts{gap:8px}
+  .dgrp summary{min-height:40px;align-items:center}
+  .chips label{min-height:38px;display:inline-flex;align-items:center}
+  .who .name{font-size:clamp(28px,9vw,40px)}
+  .scene-hud small{max-width:58vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+  .replay-bar button{min-height:30px;min-width:30px}
+  .hero-scene .scene canvas{aspect-ratio:3/1}
+}
+@media (max-width:370px){
+  .spd button{min-width:27px;font-size:11px}
+  .cbtn{padding:0 7px;font-size:12.5px}
+  .autotg{font-size:12.5px}
+}
 </style>
 
 <div class="wrap">
@@ -401,10 +434,18 @@ footer{font-size:12px;color:var(--muted);font-family:var(--f-mono)}
     <p class="saying">국방부 시계는 거꾸로 매달아 놔도 간다.</p>
   </header>
 
+  <section class="panel" aria-label="입대하기">
+    <fieldset><legend>군</legend><div class="chips" id="svcChips"></div></fieldset>
+    <fieldset><legend>신분</legend><div class="chips" id="rankChips"></div></fieldset>
+    <div class="row"><button class="btn" id="goBtn" type="button">입대하기</button></div>
+    <div class="odds" id="odds"></div>
+  </section>
+
   <div class="hero-scene" aria-hidden="true">
     <div class="scene"><canvas id="heroScene" width="240" height="60"></canvas>
       <div class="scene-hud"><span>입영 대기</span><span><b>신병교육대 정문</b></span></div></div>
   </div>
+
 
   <section class="clockbox" aria-label="복무 시계">
     <svg id="clock" viewBox="0 0 240 240" role="img" aria-label="복무 진행 시계">
@@ -417,13 +458,6 @@ footer{font-size:12px;color:var(--muted);font-family:var(--f-mono)}
       <text class="small" id="cSmall" x="120" y="150">18개월</text>
     </svg>
     <p class="clock-cap" id="clockCap">바깥 눈금 하나가 한 달입니다.</p>
-  </section>
-
-  <section class="panel" aria-label="입대하기">
-    <fieldset><legend>군</legend><div class="chips" id="svcChips"></div></fieldset>
-    <fieldset><legend>신분</legend><div class="chips" id="rankChips"></div></fieldset>
-    <div class="odds" id="odds"></div>
-    <div class="row"><button class="btn" id="goBtn" type="button">입대하기</button></div>
   </section>
 
   <section class="card" id="result" hidden aria-live="polite">
@@ -447,14 +481,14 @@ footer{font-size:12px;color:var(--muted);font-family:var(--f-mono)}
           <button type="button" id="rpNext" aria-label="다음 장면">▶</button>
           <button type="button" id="rpBack" class="rp-back">지금으로</button>
         </div>
+        <p class="rp-hint" id="rpHint">지나간 줄을 누르면 그 장면을 다시 볼 수 있어요</p>
       </div>
       <button type="button" class="to-latest" id="toLatest" hidden>새 기록 ↓</button>
-      <p class="rp-hint" id="rpHint">지나간 줄을 누르면 그 장면을 다시 볼 수 있어요</p>
       <div class="statbar" id="statbar" aria-label="능력치"></div>
       <div class="ctl" id="ctl">
         <div class="spd" id="spd" role="group" aria-label="재생 속도"><button type="button" data-s="0.5">0.5×</button><button type="button" data-s="1">1×</button><button type="button" data-s="2">2×</button><button type="button" data-s="4">4×</button></div>
         <button class="cbtn" id="pauseBtn" type="button">멈춤</button>
-        <label class="autotg" title="선택지를 무작위로 자동으로 고릅니다"><input type="checkbox" id="autoTg"> 자동</label>
+        <label class="autotg" title="선택지를 무작위로 자동으로 고릅니다" for="autoTg"><input type="checkbox" id="autoTg"> 자동</label>
         <button class="cbtn" id="sndBtn" type="button" aria-pressed="false" title="효과음을 켜고 끕니다">소리</button>
         <button class="cbtn" id="skipBtn" type="button" title="전역까지 건너뜁니다. 남은 선택은 무작위로 정해집니다">스킵</button>
       </div>
